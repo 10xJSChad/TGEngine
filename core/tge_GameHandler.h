@@ -2,6 +2,10 @@
 #include "tge_render.h"
 #include <time.h>
 
+
+struct timespec _INTERNAL_GameHandler_last_time = {0, 0};
+struct timespec _INTERNAL_GameHandler_current_time;
+
 double delta_time;
 
 
@@ -9,15 +13,20 @@ struct GameHandlerSettings {
     int update_rate;
 };
 
+
 #ifdef TGE_UNIX
-#define _INTERNAL_GameHandler_GetDeltaTime()                                \
-    do {                                                                    \
-        clock_gettime(CLOCK_MONOTONIC, &current_time);                      \
-                                                                            \
-        delta_time = (current_time.tv_sec - last_time.tv_sec) +             \
-            (current_time.tv_nsec - last_time.tv_nsec) / 1000000000.0;      \
-                                                                            \
-        last_time = current_time;                                           \
+#define _INTERNAL_GameHandler_GetDeltaTime()                                    \
+    do {                                                                        \
+        clock_gettime(CLOCK_MONOTONIC, &_INTERNAL_GameHandler_current_time);    \
+                                                                                \
+        delta_time = (                                                          \
+            _INTERNAL_GameHandler_current_time.tv_sec                           \
+            - _INTERNAL_GameHandler_last_time.tv_sec)                           \
+            + (_INTERNAL_GameHandler_current_time.tv_nsec                       \
+              - _INTERNAL_GameHandler_last_time.tv_nsec)                        \
+              / 1000000000.0;                                                   \
+                                                                                \
+        _INTERNAL_GameHandler_last_time = _INTERNAL_GameHandler_current_time;   \
     } while (0)
 #endif
 
@@ -42,8 +51,6 @@ struct GameHandlerSettings {
     } while (0)
 
 
-
-
 void
 GameHandler_SetActiveScene(
     struct Scene* new_scene)
@@ -60,13 +67,11 @@ GameHandler_InitGameScreen(
     render_Init(screen_size_x, screen_size_y);
 }
 
-struct timespec last_time = {0, 0};
-struct timespec current_time;
 
 void
 GameHandler_Update()
 {
-    clock_gettime(CLOCK_MONOTONIC, &last_time);
+    clock_gettime(CLOCK_MONOTONIC, &_INTERNAL_GameHandler_last_time);
 
     double total = 0;
 
