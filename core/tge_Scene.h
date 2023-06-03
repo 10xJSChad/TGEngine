@@ -3,16 +3,26 @@
 
 
 struct Scene {
+    struct Vec2D scene_dimensions;
+    struct GridTile* scene_grid;
     struct ListNode* gameobject_head;
 };
 
 
+struct GridTile {
+    char char_representation;
+    struct ListNode* collider_occupants;
+};
+
+
 struct Scene*
-Scene_Create()
+Scene_Create(
+    int screen_size_x,
+    int screen_size_y)
 {
     struct Scene* new_scene = calloc(1, sizeof new_scene);
+    new_scene->scene_dimensions = xy_to_Vec2D(screen_size_x, screen_size_y);
     new_scene->gameobject_head = ListNode_Create(NULL);
-    
     return new_scene;
 }
 

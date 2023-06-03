@@ -1,6 +1,6 @@
 #pragma once
-#include "tge_render.h"
 #include <time.h>
+#include "tge_render.h"
 
 
 struct timespec _INTERNAL_GameHandler_last_time = {0, 0};
@@ -43,7 +43,7 @@ struct GameHandlerSettings {
 #define GameHandler_CallAllGameObjectsUpdate()                                      \
     do {                                                                            \
         struct ListNode* cursor = active_scene->gameobject_head;                    \
-        while (cursor) {                                                            \
+        while (cursor && cursor->value_ptr) {                                       \
             GameHandler_CallGameObjectUpdate(ptr_to_GameObject(cursor->value_ptr)); \
                                                                                     \
             cursor = cursor->next;                                                  \
@@ -52,19 +52,12 @@ struct GameHandlerSettings {
 
 
 void
-GameHandler_SetActiveScene(
+GameHandler_LoadScene(
     struct Scene* new_scene)
 {
+    new_scene->scene_grid = calloc(
+        1, Vec2D_to_grid_size_bytes(new_scene->scene_dimensions));
     render_SetActiveScene(new_scene);
-}
-
-
-void 
-GameHandler_InitGameScreen(
-    int screen_size_x,
-    int screen_size_y)
-{
-    render_Init(screen_size_x, screen_size_y);
 }
 
 

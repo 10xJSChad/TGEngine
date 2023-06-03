@@ -10,7 +10,7 @@
 
 struct Scene* active_scene;
 struct Vec2D screen_size;
-int screen_buffer_size;
+size_t screen_buffer_size;
 char* screen_buffer;
 
 
@@ -21,9 +21,15 @@ char* screen_buffer;
 #define render_Clear() system("clear")
 #endif
 
-#define render_PushToScreenBuffer(gameobject)               \
-    screen_buffer[                                          \
-        Vec2D_to_buffer_index(gameobject->position)] = 'X'
+
+#define render_PushToScreenBuffer(gameobject)                       \
+    if (gameobject->sprite->sprite_type == SPRITE_CHARACTER)         \
+        screen_buffer[                                              \
+            Vec2D_to_buffer_index(gameobject->position)] = 'X';     \
+    else                                                            \
+        render_RenderSprite(                                        \
+            gameobject->sprite,                                     \
+            Vec2D_to_buffer_index(gameobject->position))
 
 
 #define render_ClearFromScreenBuffer(gameobject)                                    \
@@ -41,10 +47,23 @@ char* screen_buffer;
     } while (0)
 
 
+
+void 
+render_RenderSprite(
+    struct Sprite* sprite,
+    size_t root_buffer_index)
+{
+    for (int i = 0; i < sprite->sprite_character_grid_length; ++i) {
+        printf("%c", sprite->sprite_character_grid[i].character);
+    }
+    printf("%ld <----", sprite->sprite_character_grid_length);
+    exit(1);
+}
+
+
 void
-render_Init(
-    int screen_size_x,
-    int screen_size_y)
+render_StartRender(
+    struct Vec2D render_dimensions)
 {
     if (CFG_RENDER_HIDE_CURSOR_ON_INIT)
         render_HideCursor();
@@ -52,8 +71,8 @@ render_Init(
     if (CFG_RENDER_CLEAR_ON_INIT)
         render_Clear();
 
-    screen_size.x = screen_size_x + (screen_size_x * !!CFG_RENDER_DELIMITER);
-    screen_size.y = screen_size_y;
+    screen_size.x = render_dimensions.x + (render_dimensions.x * !!CFG_RENDER_DELIMITER);
+    screen_size.y = render_dimensions.y;
     screen_buffer_size = screen_size.x * (screen_size.y + screen_size.x);
     screen_buffer = calloc(1, screen_buffer_size);
 }
@@ -64,10 +83,8 @@ render_SetActiveScene(
     struct Scene* new_active_scene)
 {
     active_scene = new_active_scene;
+    render_StartRender(active_scene->scene_dimensions);
 }
-
-
-
 
 
 void
