@@ -5,7 +5,7 @@
 #include "tge_datatypes.h"
 #include "tge_utilmacros.h"
 #include "tge_Scene.h"
-#include "tge_compatability.h"
+#include "tge_compatibility.h"
 
 
 struct Scene* active_scene;
