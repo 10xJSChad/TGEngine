@@ -3,6 +3,11 @@
 #include "tge_render.h"
 
 
+struct GameHandlerSettings {
+    int update_delay;
+};
+
+
 struct timespec _INTERNAL_GameHandler_last_time = {0, 0};
 struct timespec _INTERNAL_GameHandler_current_time;
 struct timespec _INTERNAL_GameHandler_sleep_timespec;
@@ -12,10 +17,16 @@ struct GameHandlerSettings GameHandler_settings;
 double delta_time;
 
 
-struct GameHandlerSettings {
-    int update_sleep_amount;
-};
-
+#if (CFG_INPUT_ENABLED)
+#include "tge_InputHandler.h"
+#define GameHandler_UpdateActions(code)     \
+    while (!InputHandler_KeyboardInput()) { \
+        code                                \
+    }                                       \
+    (void) InputHandler_getch(); exit(1);
+#else
+#define GameHandler_UpdateActions(code) code
+#endif
 
 #if CFG_RENDER_DEFER_AUTO_RENDER_TO_GAMEHANDLER
 #define GameHandler_CallGameObjectUpdate(gameobject_ptr)    \
@@ -42,6 +53,8 @@ void
 GameHandler_LoadScene(
     struct Scene* new_scene)
 {
+    clock_gettime(CLOCK_MONOTONIC, &_INTERNAL_GameHandler_last_time);
+
     new_scene->scene_grid = calloc(
         1, Vec2D_to_grid_size_bytes(new_scene->scene_dimensions));
     render_SetActiveScene(new_scene);
@@ -57,29 +70,27 @@ GameHandler_LoadSettings(
 
 
 void
-GameHandler_Update()
+GameHandler_UpdateLoop()
 {
-    clock_gettime(CLOCK_MONOTONIC, &_INTERNAL_GameHandler_last_time);
-
     double total = 0;
-
     update_loop:
-        #if (CFG_GAME_ALLOW_UPDATE_SLEEP)
-        if (GameHandler_settings.update_sleep_amount != 99)
-            GameHandler_Sleep(GameHandler_settings.update_sleep_amount);
-        #endif
+        GameHandler_UpdateActions(
+            #if (CFG_GAME_ALLOW_UPDATE_SLEEP)
+            if (GameHandler_settings.update_delay)
+                GameHandler_Sleep(GameHandler_settings.update_delay);
+            #endif
 
-        #if (CFG_GAME_USE_DELTATIME)
+            #if (CFG_GAME_USE_DELTATIME)
             _INTERNAL_GameHandler_GetDeltaTime();
             total += delta_time;
-        #endif
-        
-        #if (!CFG_GAMEOBJECT_DISABLE_EVENT_UPDATE)
+            #endif
+            
+            #if (!CFG_GAMEOBJECT_DISABLE_EVENT_UPDATE)
             GameHandler_CallAllGameObjectsUpdate();
-        #endif
+            #endif
 
-        render_RenderFrame();
-        printf("%lf <-", total);
-
+            render_RenderFrame();
+            printf("%lf <-", total);
+        )
     goto update_loop;
 }

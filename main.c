@@ -4,6 +4,7 @@
 #include "helpers/aliases.h"
 #include "helpers/macros.h"
 
+
 int
 main()
 {
@@ -11,8 +12,11 @@ main()
     Scene* main_scene = Scene_Create(100, 35);
 
     // Build the spaceship sprite
-    SpriteCharacter SC_SpaceshipFrame = {.character = 'x', .color = COLOR_CYAN};
-    SpriteCharacter SC_SpaceshipThrusters = {.character = 'O', .color = COLOR_RED};
+    SpriteCharacter SC_SpaceshipFrame = {.character = 'x', 
+                                         .color = ANSI_COLOR_CYAN};
+
+    SpriteCharacter SC_SpaceshipThrusters = {.character = 'O', 
+                                             .color = ANSI_COLOR_RED};
     Sprite* SPR_Spaceship;
     
     // Actual sprite creation
@@ -29,7 +33,7 @@ main()
 
         SPRITE_IGNORE_CHAR('.');
         SPRITE_SET_TYPE(SPRITE_FLAT);
-        SPRITE_ASSIGN(SPR_Spaceship)  
+        SPRITE_ASSIGN(SPR_Spaceship);
     );
 
     // Create and configure the spaceship GameObject
@@ -42,13 +46,16 @@ main()
     // Spawn the spaceship into the main game scene
     Scene_SpawnGameObject(main_scene, GAMEOBJ_SpaceShip);
 
+    // Initialize the input handler
+    InputHandler_Init();
+
     // Configure the GameHandler update loop to not run more often than
     // once every 50 milliseconds.
-    GameHandlerSettings game_settings = {.update_sleep_amount = 50}; 
+    GameHandlerSettings game_settings = {.update_delay = 50}; 
     GameHandler_LoadSettings(game_settings);
 
     // Load the scene and start the game loop
     GameHandler_LoadScene(main_scene);
-    GameHandler_Update();
+    GameHandler_UpdateLoop();
     return 0;
 }

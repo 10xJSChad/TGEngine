@@ -11,15 +11,31 @@
 
 
 /*
- * Whether to allow the use of sleep() in the GameHandler's update
+ * Use TGE built-in input handling
+ */
+#define CFG_INPUT_ENABLED true
+
+/*
+ * Use getchar_unlocked() instead of getchar() for input.
+ * getchar_unlocked() is faster but thread unsafe.
+ */
+#define CFG_INPUT_GETCHAR_UNLOCKED true
+
+/*
+ * Allow the use of sleep() in the GameHandler's update
  * loop to slow the loop down, disabling this will give a minor
  * performance increase.
+ * 
+ * Only disable if GameHandlerSettings.update_delay is used
+ * absolutely nowhere in the game.
  */
 #define CFG_GAME_ALLOW_UPDATE_SLEEP true
 
 /* 
- * Whether to use deltatime or not, there is not much
- * there is no built-in replacement for deltatime.
+ * Whether to use deltatime or not.
+ * This setting might be removed, I don't see a purpose fot it.
+ * 
+ * There is no built-in replacement for deltatime.
  */
 #define CFG_GAME_USE_DELTATIME true
 
