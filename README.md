@@ -7,4 +7,4 @@ TGEngine is a game engine for the development of terminal based games, it aims t
 
 
 #### Windows Dependencies:
-* There is no Windows version yet.
+* There is no Windows support yet, this will come once TGE is functional enough to develop games with.
