@@ -10,6 +10,7 @@ enum SpriteType {
 
 
 struct SpriteCharacter {
+    struct Vec2D relative_position;
     char* color;
     char character;
 };

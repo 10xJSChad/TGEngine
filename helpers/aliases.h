@@ -13,6 +13,7 @@
 
 
 typedef struct GameObject GameObject;
+typedef struct GameHandlerSettings GameHandlerSettings;
 typedef struct Scene Scene;
 typedef struct SpriteCharacter SpriteCharacter;
 typedef struct Sprite Sprite;

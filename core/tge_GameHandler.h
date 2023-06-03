@@ -1,34 +1,21 @@
 #pragma once
-#include <time.h>
+#include "tge_config.h"
 #include "tge_render.h"
 
 
 struct timespec _INTERNAL_GameHandler_last_time = {0, 0};
 struct timespec _INTERNAL_GameHandler_current_time;
+struct timespec _INTERNAL_GameHandler_sleep_timespec;
+
+struct GameHandlerSettings GameHandler_settings;
 
 double delta_time;
 
 
 struct GameHandlerSettings {
-    int update_rate;
+    int update_sleep_amount;
 };
 
-
-#ifdef TGE_UNIX
-#define _INTERNAL_GameHandler_GetDeltaTime()                                    \
-    do {                                                                        \
-        clock_gettime(CLOCK_MONOTONIC, &_INTERNAL_GameHandler_current_time);    \
-                                                                                \
-        delta_time = (                                                          \
-            _INTERNAL_GameHandler_current_time.tv_sec                           \
-            - _INTERNAL_GameHandler_last_time.tv_sec)                           \
-            + (_INTERNAL_GameHandler_current_time.tv_nsec                       \
-              - _INTERNAL_GameHandler_last_time.tv_nsec)                        \
-              / 1000000000.0;                                                   \
-                                                                                \
-        _INTERNAL_GameHandler_last_time = _INTERNAL_GameHandler_current_time;   \
-    } while (0)
-#endif
 
 #if CFG_RENDER_DEFER_AUTO_RENDER_TO_GAMEHANDLER
 #define GameHandler_CallGameObjectUpdate(gameobject_ptr)    \
@@ -62,6 +49,14 @@ GameHandler_LoadScene(
 
 
 void
+GameHandler_LoadSettings(
+    struct GameHandlerSettings new_settings)
+{
+    GameHandler_settings = new_settings;
+}
+
+
+void
 GameHandler_Update()
 {
     clock_gettime(CLOCK_MONOTONIC, &_INTERNAL_GameHandler_last_time);
@@ -69,6 +64,11 @@ GameHandler_Update()
     double total = 0;
 
     update_loop:
+        #if (CFG_GAME_ALLOW_UPDATE_SLEEP)
+        if (GameHandler_settings.update_sleep_amount != 99)
+            GameHandler_Sleep(GameHandler_settings.update_sleep_amount);
+        #endif
+
         #if (CFG_GAME_USE_DELTATIME)
             _INTERNAL_GameHandler_GetDeltaTime();
             total += delta_time;

@@ -18,10 +18,11 @@ main()
     // Actual sprite creation
     SPRITE_CREATE
     (
-        SPRITE_TEMPLATE(".....x.....",     
-                        "x..xxxxx..x",
-                        "xxxxxxxxxxx",
-                        "O....O....O");
+        SPRITE_TEMPLATE("......x......", 
+                        "|....xxx....|",     
+                        "x..xxxxxxx..x",
+                        "xxxxxxxxxxxxx",
+                        "O.....O.....O");
 
         SPRITE_TEMPLATE_REPLACE('x', SC_SpaceshipFrame);
         SPRITE_TEMPLATE_REPLACE('O', SC_SpaceshipThrusters);
@@ -31,7 +32,6 @@ main()
         SPRITE_ASSIGN(SPR_Spaceship)  
     );
 
-
     // Create and configure the spaceship GameObject
     GameObject* GAMEOBJ_SpaceShip = GameObject_Create();
     GAMEOBJ_SpaceShip->sprite = SPR_Spaceship;
@@ -39,9 +39,13 @@ main()
     GAMEOBJ_SpaceShip->collision_rule = COLLISION_FULL;
     GAMEOBJ_SpaceShip->position = xy_to_Vec2D(40, 18);
 
-
     // Spawn the spaceship into the main game scene
     Scene_SpawnGameObject(main_scene, GAMEOBJ_SpaceShip);
+
+    // Configure the GameHandler update loop to not run more often than
+    // once every 50 milliseconds.
+    GameHandlerSettings game_settings = {.update_sleep_amount = 50}; 
+    GameHandler_LoadSettings(game_settings);
 
     // Load the scene and start the game loop
     GameHandler_LoadScene(main_scene);

@@ -3,9 +3,9 @@
 #include <stdio.h>
 #include <string.h>
 #include "tge_datatypes.h"
-#include "tge_config.h"
 #include "tge_utilmacros.h"
 #include "tge_Scene.h"
+#include "tge_compatability.h"
 
 
 struct Scene* active_scene;
@@ -14,16 +14,8 @@ size_t screen_buffer_size;
 char* screen_buffer;
 
 
-#ifdef TGE_UNIX
-#define render_HideCursor() printf("\e[?25l");
-#define render_ShowCursor() printf("\e[?25h");
-#define render_SetCursorPos(x,y) printf("\033[%d;%dH", (y), (x))
-#define render_Clear() system("clear")
-#endif
-
-
 #define render_PushToScreenBuffer(gameobject)                       \
-    if (gameobject->sprite->sprite_type == SPRITE_CHARACTER)         \
+    if (gameobject->sprite->sprite_type == SPRITE_CHARACTER)        \
         screen_buffer[                                              \
             Vec2D_to_buffer_index(gameobject->position)] = 'X';     \
     else                                                            \
@@ -54,10 +46,13 @@ render_RenderSprite(
     size_t root_buffer_index)
 {
     for (int i = 0; i < sprite->sprite_character_grid_length; ++i) {
-        printf("%c", sprite->sprite_character_grid[i].character);
+        struct Vec2D draw_pos = Vec2D_Add(sprite->sprite_character_grid[i].relative_position, 
+                                          buffer_index_to_Vec2D(root_buffer_index));
+
+        if (Vec2D_InBounds(draw_pos, active_scene->scene_dimensions))
+            screen_buffer[
+                Vec2D_to_buffer_index(draw_pos)] = sprite->sprite_character_grid[i].character;
     }
-    printf("%ld <----", sprite->sprite_character_grid_length);
-    exit(1);
 }
 
 

@@ -8,7 +8,7 @@
 #define Vec2D_to_grid_size_bytes(vector) vector.y * vector.x
 #define xy_to_screen_index(xy_x, xy_y) xy_y * screen_size.x + xy_x
 #define xy_to_buffer_index(xy_x, xy_y) xy_y * (screen_size.x + 1) + xy_x
-#define buffer_index_to_xy(index)   \
-    (struct Vec2) {(index) % (screen_size.x + 1), (index) / (screen_size.x + 1)}
+#define buffer_index_to_Vec2D(index)   \
+    (struct Vec2D) {(index) % (screen_size.x + 1), (index) / (screen_size.x + 1)}
 
 #define ptr_to_GameObject(ptr) ((struct GameObject*) ptr)

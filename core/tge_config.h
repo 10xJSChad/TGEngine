@@ -9,6 +9,14 @@
 #define TGE_WINDOWS
 #endif
 
+
+/*
+ * Whether to allow the use of sleep() in the GameHandler's update
+ * loop to slow the loop down, disabling this will give a minor
+ * performance increase.
+ */
+#define CFG_GAME_ALLOW_UPDATE_SLEEP true
+
 /* 
  * Whether to use deltatime or not, there is not much
  * there is no built-in replacement for deltatime.
